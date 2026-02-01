@@ -2,7 +2,7 @@ apiVersion: v2
 name: common
 description: FireLabs Helm Common Library - Function library for Helm charts
 type: library
-version: 5.0.1
+version: 5.0.2
 kubeVersion: ">=1.16.0-0"
 keywords:
   - firelabs
