@@ -1,6 +1,6 @@
 # FireLabs Helm Common Library
 
-![Version: 5.0.0](https://img.shields.io/badge/Version-5.0.0-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square)
+![Version: 5.0.3](https://img.shields.io/badge/Version-5.0.3-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square)
 
 **Function library for Helm charts**
 
@@ -25,19 +25,75 @@ This is a [Helm Library Chart](https://helm.sh/docs/topics/library_charts/#helm)
 
 ## Using this library
 
+### Add the Helm Repository
+
+First, add the FireLabs Helm repository:
+
+```bash
+helm repo add firelabs https://fireball1725.github.io/firelabs-helm-common/
+helm repo update
+```
+
+### Use in Your Chart
+
 Include this chart as a dependency in your `Chart.yaml`:
 
 ```yaml
 # Chart.yaml
+apiVersion: v2
+name: my-app
+version: 1.0.0
 dependencies:
-- name: common
-  version: 5.0.0
-  repository: https://fireball1725.github.io/firelabs-helm-common/
+  - name: common
+    version: 5.0.3
+    repository: https://fireball1725.github.io/firelabs-helm-common/
+```
+
+Then run:
+
+```bash
+helm dependency update
+```
+
+### Example Usage
+
+Create a minimal chart that uses the common library:
+
+```yaml
+# values.yaml
+image:
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  main:
+    ports:
+      http:
+        port: 80
+
+ingress:
+  main:
+    enabled: true
+    hosts:
+      - host: my-app.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+```
+
+```yaml
+# templates/common.yaml
+{{- include "common.classes.deployment" . }}
+{{- include "common.classes.service" . }}
+{{- include "common.classes.ingress" . }}
 ```
 
 ## Configuration
 
 Read through the [values.yaml](./values.yaml) file. It has several commented out suggested values.
+
+For detailed documentation on all available values and features, see the [values.yaml](./values.yaml) file.
 
 ## Values
 
@@ -143,14 +199,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Migration Notes
 
-If you're migrating from k8s-at-home common library (v4.x), update your Chart.yaml:
+If you're migrating from k8s-at-home common library (v4.x):
 
-```yaml
-dependencies:
-- name: common
-  version: 5.0.0
-  repository: https://fireball1725.github.io/firelabs-helm-common/
-```
+1. Add the FireLabs Helm repository:
+   ```bash
+   helm repo add firelabs https://fireball1725.github.io/firelabs-helm-common/
+   helm repo update
+   ```
+
+2. Update your Chart.yaml:
+   ```yaml
+   dependencies:
+   - name: common
+     version: 5.0.3
+     repository: https://fireball1725.github.io/firelabs-helm-common/
+   ```
+
+3. Run `helm dependency update`
 
 For previous changelog entries from the k8s-at-home fork, see [CHANGELOG_LEGACY.md](./CHANGELOG_LEGACY.md).
 
