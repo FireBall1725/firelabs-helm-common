@@ -65,6 +65,7 @@ jobs:
         run: |
           cd gh-pages
           helm repo index . --url https://fireball1725.github.io/firelabs-helm-common/ --merge index.yaml
+          touch .nojekyll
 
       - name: Push to gh-pages
         run: |
