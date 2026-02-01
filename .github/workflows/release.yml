@@ -34,8 +34,7 @@ jobs:
             echo "gh-pages branch doesn't exist, creating it..."
             mkdir -p gh-pages
             cd gh-pages
-            git init
-            git checkout -b gh-pages
+            git init -b gh-pages
             git remote add origin https://github.com/${{ github.repository }}.git
             echo "# FireLabs Helm Common Library" > README.md
             echo "" >> README.md
@@ -47,6 +46,9 @@ jobs:
             git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
             git add README.md
             git commit -m "Initialize gh-pages branch"
+          else
+            cd gh-pages
+            git checkout gh-pages 2>/dev/null || git checkout -b gh-pages
           fi
 
       - name: Install Helm
@@ -72,4 +74,4 @@ jobs:
           git add .
           CHART_VERSION=$(helm show chart ../main | grep '^version:' | awk '{print $2}')
           git commit -m "Release common-${CHART_VERSION}" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:gh-pages
