@@ -1,0 +1,53 @@
+name: Release Chart
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Chart.yaml'
+      - 'values.yaml'
+      - 'templates/**'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Package Chart
+        run: |
+          cd main
+          helm package . --destination ../gh-pages
+
+      - name: Update Chart Index
+        run: |
+          cd gh-pages
+          helm repo index . --url https://fireball1725.github.io/firelabs-helm-common/ --merge index.yaml
+
+      - name: Push to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git add .
+          CHART_VERSION=$(helm show chart ../main | grep '^version:' | awk '{print $2}')
+          git commit -m "Release common-${CHART_VERSION}" || echo "No changes to commit"
+          git push
